@@ -1,25 +1,53 @@
 import java.util.Scanner;
+import javax.swing.*;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
 public class BuyItems {
-    private static int coffeeStock;
-    private static int cookieStock;
+    private static int coffeeStock = 100;
+    private static int cookieStock = 100;
     private static double profit;
     private Scanner scanner = new Scanner(System.in);
-    private int coffee;
-    private int cookies;
+    private int coffee = 0;
+    private int cookies = 0;
+    private JFrame frame;
+    private JTextField coffeeField;
+    private JTextField cookieField;
     public static void main(String[] args) {
-        System.out.println("Welcome to the Coffee and Cookie Shop!");
-        System.out.println("We have coffee for $2.50 each and cookies for $1.50 each.");
-        userInput();
+        BuyItems buyItems = new BuyItems();
+        buyItems.userInput();
     }
-    public static void userInput() {
+    public void userInput() {
+        frame = new JFrame("Coffee and Cookie Shop");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(400, 200);
+        frame.setLayout(new FlowLayout());
+        frame.setVisible(true);
+
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridLayout(6, 1, 5, 5));
+        frame.add(panel);
+
+        JLabel welcomeLabel = new JLabel("Welcome to the Coffee and Cookie Shop!");
+        panel.add(welcomeLabel);
+        JLabel priceLabel = new JLabel("We have coffee for $2.50 each and cookies for $1.50 each.");
+        panel.add(priceLabel);
+
         BuyItems buyItems = new BuyItems();
         buyItems.initializeStock();
-        System.out.println("How many coffees would you like to buy?");
-        int count = Integer.parseInt(buyItems.scanner.nextLine());
+
+        JLabel coffeeLabel = new JLabel("How many coffees would you like to buy?");
+        panel.add(coffeeLabel);
+        coffeeField = new JTextField(5);
+        panel.add(coffeeField);
+        int count = Integer.parseInt(coffeeField.getText());
         buyItems.addCoffeeToCart(count);
-        System.out.println("How many cookies would you like to buy?");
-        count = Integer.parseInt(buyItems.scanner.nextLine());
+        
+        JLabel cookieLabel = new JLabel("How many cookies would you like to buy?");
+        panel.add(cookieLabel);
+        cookieField = new JTextField(5);
+        count = Integer.parseInt(cookieField.getText());
         buyItems.addCookiesToCart(count);
+
         buyItems.buyItems();
     }
     public void initializeStock() {
