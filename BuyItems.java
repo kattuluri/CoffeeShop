@@ -2,6 +2,8 @@ import java.util.Scanner;
 import javax.swing.*;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 public class BuyItems {
     private static int coffeeStock = 100;
     private static int cookieStock = 100;
@@ -21,34 +23,100 @@ public class BuyItems {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(400, 200);
         frame.setLayout(new FlowLayout());
-        frame.setVisible(true);
 
         JPanel panel = new JPanel();
         panel.setLayout(new GridLayout(6, 1, 5, 5));
-        frame.add(panel);
 
         JLabel welcomeLabel = new JLabel("Welcome to the Coffee and Cookie Shop!");
-        panel.add(welcomeLabel);
         JLabel priceLabel = new JLabel("We have coffee for $2.50 each and cookies for $1.50 each.");
-        panel.add(priceLabel);
-
-        BuyItems buyItems = new BuyItems();
-        buyItems.initializeStock();
 
         JLabel coffeeLabel = new JLabel("How many coffees would you like to buy?");
-        panel.add(coffeeLabel);
         coffeeField = new JTextField(5);
-        panel.add(coffeeField);
-        int count = Integer.parseInt(coffeeField.getText());
-        buyItems.addCoffeeToCart(count);
         
         JLabel cookieLabel = new JLabel("How many cookies would you like to buy?");
-        panel.add(cookieLabel);
         cookieField = new JTextField(5);
-        count = Integer.parseInt(cookieField.getText());
-        buyItems.addCookiesToCart(count);
 
-        buyItems.buyItems();
+        JButton submitButton = new JButton("Add to Cart");
+        submitButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    int coffeeCount = Integer.parseInt(coffeeField.getText());
+                    int cookieCount = Integer.parseInt(cookieField.getText());
+                    addItemsToCart(coffeeCount, cookieCount);
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(frame, "Please enter valid numbers for coffee and cookies.");
+                }
+            }
+        });
+        JButton cancelButton = new JButton("Cancel");
+        cancelButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                frame.dispose(); 
+            }
+        });
+        panel.add(welcomeLabel);
+        panel.add(priceLabel);
+        panel.add(coffeeLabel);
+        panel.add(coffeeField);
+        panel.add(cookieLabel);
+        panel.add(cookieField);
+        frame.add(panel);
+        frame.add(submitButton);
+        frame.add(cancelButton);
+        frame.setVisible(true);
+    }
+    public void addItemsToCart(int coffeeCount, int cookieCount) {
+        if (coffeeCount < 0 || cookieCount < 0) {
+            JOptionPane.showMessageDialog(frame, "Please enter non-negative numbers.");
+            return;
+        }
+        if (coffeeCount > coffeeStock) {
+            JOptionPane.showMessageDialog(frame, "Not enough coffee in stock. Available: " + coffeeStock);
+            coffeeCount = coffeeStock;
+        }
+        if (cookieCount > cookieStock) {
+            JOptionPane.showMessageDialog(frame, "Not enough cookies in stock. Available: " + cookieStock);
+            cookieCount = cookieStock;
+        }
+
+        coffee += coffeeCount;
+        cookies += cookieCount;
+
+        String message;
+        double totalCost = (coffee * 2.5) + (cookies * 1.5);
+        if (coffee > 0 && cookies == 0) {
+            message = "You have " + coffee + " coffee(s) in your cart for a total of $" + totalCost;
+        } else if (cookies > 0 && coffee == 0) {
+            message = "You have " + cookies + " cookie(s) in your cart for a total of $" + totalCost;
+        } else if (coffee > 0 && cookies > 0) {
+            message = "You have " + coffee + " coffee(s) and " + cookies + " cookie(s) in your cart for a total of $" + totalCost;
+        } else {
+            message = "No items in cart.";
+            JOptionPane.showMessageDialog(frame, message);
+            return;
+        }
+        int response = JOptionPane.showConfirmDialog(frame, message + "\nWould you like to buy these items?", 
+                                                    "Confirm Purchase", JOptionPane.YES_NO_OPTION);
+        if (response == JOptionPane.YES_OPTION) {
+            coffeeStock -= coffee;
+            cookieStock -= cookies;
+            profit += totalCost;
+            JOptionPane.showMessageDialog(frame, "Thank you for your purchase! Total cost: $" + totalCost);
+            coffee = 0;
+            cookies = 0;
+            coffeeField.setText("");
+            cookieField.setText("");
+        } else {
+            JOptionPane.showMessageDialog(frame, "Purchase cancelled.");
+            coffee = 0;
+            cookies = 0;
+            coffeeField.setText("");
+            cookieField.setText("");
+        }
+        initializeStock();
+        
     }
     public void initializeStock() {
         if (coffeeStock == 0) {
@@ -56,64 +124,6 @@ public class BuyItems {
         }
         if (cookieStock == 0) {
             cookieStock = 100;
-        }
-    }
-    public void addCoffeeToCart(int count) {
-        if (coffeeStock > 0) {
-            coffee += count;
-            System.out.println("Coffee added to cart. Current coffee count: " + coffee);
-        } else {
-            System.out.println("No coffee left in stock.");
-        }
-    }
-    public void addCookiesToCart(int count) {
-        if (cookieStock > 0) {
-            cookies += count;
-            System.out.println("Cookies added to cart. Current cookie count: " + cookies);
-        } else {
-            System.out.println("No cookies left in stock.");
-        }
-    }
-    public void buyItems() {
-        if (coffee > 0 || cookies > 0) {
-            if (coffee > 0 && cookies == 0) {
-                System.out.println("You have " + coffee + " coffee(s) in your cart for a total of " + 
-                                   (coffee * 2.5) + " dollars.");
-            }
-            else if (cookies > 0 && coffee == 0) {
-                System.out.println("You have " + cookies + " cookie(s) in your cart for a total of " +
-                                   (cookies * 1.5) + " dollars.");
-            } 
-            else {
-                System.out.println("You have " + coffee + " coffee(s) and " + cookies + " cookie(s) in your cart for a total of " +
-                                   ((coffee * 2.5) + (cookies * 1.5)) + " dollars.");
-            }
-        } else {
-            System.out.println("No items in cart.");
-            return;
-        }
-        System.out.println("Would you like to buy these items? (yes/no)");
-        String response = scanner.nextLine();
-        if (response.equalsIgnoreCase("yes")) {
-            if (coffee > coffeeStock) {
-                System.out.println("Not enough coffee in stock.");
-                coffee = coffeeStock; 
-            }
-            if (cookies > cookieStock) {
-                System.out.println("Not enough cookies in stock.");
-                cookies = cookieStock;
-            }
-            double totalCost = (coffee * 2.5) + (cookies * 1.5);
-            profit += totalCost;
-            coffeeStock -= coffee;
-            cookieStock -= cookies;
-            System.out.println("Thank you for your purchase! Total cost: " + totalCost + " dollars.");
-            coffee = 0; 
-            cookies = 0; 
-            return;
-        } else {
-            System.out.println("Purchase cancelled.");
-            userInput();
         }
     }
 }
